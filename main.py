@@ -1,20 +1,20 @@
 from googledrivedownloader import GoogleFileIdFinder
 import os
-from instagram_upload import Instagram_Upload
+from instagramupload import InstagramUpload
 
 # instabot is incredibly jank and needs the config json to be deleted everytime except the first time you login
-if os.path.isfile('config/aten_sun_cat_uuid_and_cookie.json'):
-    os.remove("config/aten_sun_cat_uuid_and_cookie.json")
+if os.path.isfile('config/your_instagram_profile_name_uuid_and_cookie.json'):
+    os.remove("config/your_instagram_profile_name_uuid_and_cookie.json")
 
-INSTAGRAM_USERNAME = 'aten_sun_cat'
-INSTAGRAM_PASSWORD = '@#av9R27RfmMRf'
+INSTAGRAM_USERNAME = 'your instagram username'
+INSTAGRAM_PASSWORD = 'your instagram password'
 
 user_input = input(f'Is this your first time using this program?'
                    f' enter "y" if so, otherwise, press enter to continue: ').lower()
 
 
 drive_files = GoogleFileIdFinder()
-instabot = Instagram_Upload(INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
+instabot = InstagramUpload(INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
 
 
 if user_input == 'y':
@@ -28,4 +28,3 @@ else:
     # it'll succeed on the third try.
 
     instabot.upload_cat_photo()
-

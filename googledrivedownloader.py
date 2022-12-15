@@ -1,13 +1,16 @@
 from __future__ import print_function
+
+from googleapiclient.http import MediaIoBaseDownload
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from oauth2client import client, tools, file
-from googleapiclient.http import MediaIoBaseDownload
+from google_auth_oauthlib.flow import InstalledAppFlow
+
 import shutil
+import os.path
 from PIL import Image
 from datetime import datetime
-
-# TODO: 1. Moving downloaded files from google drive to seperate backup folder
 
 now = datetime.now()
 current_date = now.strftime('%m/%d/%Y')
@@ -15,15 +18,22 @@ current_date = now.strftime('%m/%d/%Y')
 
 class GoogleFileIdFinder:
     def __init__(self):
-        SCOPES = 'https://www.googleapis.com/auth/drive'
-        self.store = file.Storage('google_auth/storage.json')
-        self.creds = self.store.get()
-        self.service = build('drive', 'v3', credentials=self.creds)
-        if not self.creds or self.creds.invalid:
-            self.flow = client.flow_from_clientsecrets('google_auth/user_auth.json', SCOPES)
-            self.creds = tools.run_flow(self.flow, self.store)
+        scopes = 'https://www.googleapis.com/auth/drive'
+        self.creds = None
+        if os.path.exists('google_auth/token.json'):
+            self.creds = Credentials.from_authorized_user_file('token.json', scopes)
+        if not self.creds or not self.creds.valid:
+            if self.creds and self.creds.expired and self.creds.refresh_token:
+                self.creds.refresh(Request())
+            else:
+                self.flow = InstalledAppFlow.from_client_secrets_file(
+                    'google_auth/credentials.json', scopes)
+                self.creds = self.flow.run_local_server(port=0)
+            with open('google_auth/token.json', 'w') as token:
+                token.write(self.creds.to_json())
         # stores folder_id of desired google drive folder that you want to download contents from for later use
         self.file_id = ''
+        self.service = build('drive', 'v3', credentials=self.creds)
 
     def search_file_id(self):
         """
@@ -108,7 +118,6 @@ class GoogleFileIdFinder:
             self.service.files().create(body=file_metadata, fields='id').execute()
             print('A new folder has been created in google drive. '
                   'move your pictures into "cat pics" folder and rerun this program')
-
 
         except HttpError as error:
             print(F'An error occurred: {error}')
