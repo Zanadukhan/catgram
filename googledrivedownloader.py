@@ -8,8 +8,11 @@ from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 import shutil
+
 import os.path
+
 from PIL import Image
+
 from datetime import datetime
 
 now = datetime.now()
@@ -18,10 +21,10 @@ current_date = now.strftime('%m/%d/%Y')
 
 class GoogleFileIdFinder:
     def __init__(self):
-        scopes = 'https://www.googleapis.com/auth/drive'
+        scopes = ['https://www.googleapis.com/auth/drive']
         self.creds = None
         if os.path.exists('google_auth/token.json'):
-            self.creds = Credentials.from_authorized_user_file('token.json', scopes)
+            self.creds = Credentials.from_authorized_user_file('google_auth/token.json', scopes)
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
@@ -47,12 +50,22 @@ class GoogleFileIdFinder:
             page_token = None
             while True:
                 response = self.service.files().list(
-                    q="mimeType = 'application/vnd.google-apps.folder' and name contains 'cat'",
+                    q="mimeType = 'application/vnd.google-apps.folder' and name = 'cat pics' and trashed = false",
                     spaces='drive',
                     fields='nextPageToken, ''files(id, name)',
                     pageToken=page_token).execute()
-                for file in response.get('files', []):
-                    self.file_id += file.get('id')
+                # the google drive is checked for any folder titled, 'cat pics'. If not found, a new folder
+                # with that title is created
+                if response.get('files', []):
+                    for file in response.get('files', []):
+                        self.file_id += file.get('id')
+                else:
+                    print('Error: Folder was not found \n'
+                          'A new folder called "cat pics" has been created. Populate the folder with pictures'
+                          ' rerun the program')
+                    self.create_folder()
+                    quit()
+
                 files.extend(response.get('files', []))
                 page_token = response.get('nextPageToken', None)
                 if page_token is None:
@@ -74,12 +87,15 @@ class GoogleFileIdFinder:
             # Call the Drive v3 API
             results = self.service.files().list(
                 q=f"'{folder_id}' in parents",
-                pageSize=10, fields="nextPageToken, files(id, name)",
+                pageSize=10,
+                fields="nextPageToken, files(id, name)",
                 pageToken=page_token).execute()
             items = results.get('files', [])
 
             if not items:
-                print('No files found.')
+                print("Error: No pictures were found in the folder\n"
+                      "try again once you've populated the folder with pictures")
+                quit()
             else:
                 for item in items:
                     print(f'{item["name"], item["id"]}')
@@ -93,7 +109,9 @@ class GoogleFileIdFinder:
                         while done is False:
                             status, done = downloader.next_chunk()
                             print("Download %d%%." % int(status.progress() * 100))
+                    print(item['name'])
                     shutil.copy(item['name'], 'instagram_uploads')
+                    os.remove(item['name'])
                     self.rotate_jpg(item['name'])
                     # Folder used is renamed to "backup{current_date}" and
                     # a new "cat pics" folder is created for future use
@@ -116,8 +134,7 @@ class GoogleFileIdFinder:
             }
 
             self.service.files().create(body=file_metadata, fields='id').execute()
-            print('A new folder has been created in google drive. '
-                  'move your pictures into "cat pics" folder and rerun this program')
+
 
         except HttpError as error:
             print(F'An error occurred: {error}')
@@ -125,6 +142,7 @@ class GoogleFileIdFinder:
 
     @staticmethod
     def rotate_jpg(jpg):
+        # problem:
         """
         rotates downloaded image from google drive so that it is oriented properly when posted on instagram
         :param jpg: picture that is to be rotated
