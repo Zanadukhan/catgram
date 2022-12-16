@@ -3,6 +3,8 @@ A script for mass uploading pics to instagram from Google Drive.
 I had the idea to create this script for myself when I got a new kitten and a friend recommended that I create an instagram for him.
 Hence, all the references to cats in this, but it can be adjusted for any purpose.
 
+This is my first 'real' (self-directed, researched everything on my own) so I would appreciate feedback :)
+
 # What does this do?
 1. This script looks into your Google Drive and pulls out images from a folder that matches the correct conditions (must be named 'cat pics') 
   - If a folder is not found, a new one is created for you
@@ -24,3 +26,4 @@ Hence, all the references to cats in this, but it can be adjusted for any purpos
 
 # Planned Feature
 1. Giving the user the option of being presented each photo and assigning a caption to be posted with it.
+2. Actually allowing the user to post a video
