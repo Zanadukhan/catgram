@@ -1,7 +1,7 @@
 # catgram
 A script for mass uploading pics to instagram from Google Drive.
 I had the idea to create this script for myself when I got a new kitten and a friend recommended that I create an instagram for him.
-Hence, all the references to cat in this, but it can be adjusted for any purpose.
+Hence, all the references to cats in this, but it can be adjusted for any purpose.
 
 # What does this do?
 1. This script looks into your Google Drive and pulls out images from a folder that matches the correct conditions 
