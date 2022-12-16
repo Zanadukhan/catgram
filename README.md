@@ -4,8 +4,8 @@ I had the idea to create this script for myself when I got a new kitten and a fr
 Hence, all the references to cats in this, but it can be adjusted for any purpose.
 
 # What does this do?
-1. This script looks into your Google Drive and pulls out images from a folder that matches the correct conditions 
-  - You are given an option to create a new folder when you run the script
+1. This script looks into your Google Drive and pulls out images from a folder that matches the correct conditions (must be named 'cat pics') 
+  - If a folder is not found, a new one is created for you
 2. The pictures are downloaded and moved into the 'instagram_uploads' folder so that the instabot knows where to search for JPGs
 
 
