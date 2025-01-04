@@ -1,6 +1,6 @@
-from googledrivedownloader import GoogleFileIdFinder
+from scripts.googledrivedownloader import GoogleFileIdFinder
 import os
-from instagramupload import InstagramUpload
+from scripts.instagramupload import InstagramUpload
 
 # IMPORTANT!!!!
 # instabot is incredibly jank and needs the config json to be deleted everytime except the first time you login
